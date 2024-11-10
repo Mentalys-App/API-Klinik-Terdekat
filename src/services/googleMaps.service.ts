@@ -1,0 +1,94 @@
+import { Client, Language } from '@googlemaps/google-maps-services-js'
+import { SearchParams, PlaceDetails } from '../types'
+import { config } from '../config'
+import { AppError } from '@/utils/AppError'
+
+export class GoogleMapsService {
+  private client: Client
+
+  constructor() {
+    this.client = new Client({})
+  }
+
+  async searchNearbyPlaces(params: SearchParams): Promise<PlaceDetails[]> {
+    try {
+      const { location, radius, openNow } = params
+
+      const response = await this.client.placesNearby({
+        params: {
+          key: config.googleMapsApiKey as string,
+          location: location,
+          radius: radius,
+          keyword: config.defaultKeywords,
+          type: 'health',
+          opennow: openNow,
+          language: 'id' as Language // Menggunakan bahasa Indonesia
+        }
+      })
+
+      const places = response.data.results
+
+      // Tambahkan foto URL untuk setiap tempat
+      const placesWithPhotos = await Promise.all(
+        places.map(async (place) => {
+          if (place.photos && place.photos.length > 0) {
+            const photoUrl = await this.getPlacePhoto(place.photos[0].photo_reference)
+            return { ...place, photoUrl }
+          }
+          return place
+        })
+      )
+
+      return placesWithPhotos as PlaceDetails[]
+    } catch (error) {
+      console.error('Error searching nearby places:', error)
+      throw AppError('Failed to search nearby places', 500)
+    }
+  }
+
+  async getPlaceDetails(placeId: string): Promise<PlaceDetails> {
+    try {
+      const response = await this.client.placeDetails({
+        params: {
+          key: config.googleMapsApiKey as string,
+          place_id: placeId,
+          language: 'id' as Language,
+          // sesuaikan dengan kebutuhan frontend
+          fields: [
+            'name',
+            'formatted_address',
+            'formatted_phone_number',
+            'opening_hours',
+            'rating',
+            'geometry',
+            'photos',
+            'website',
+            'reviews',
+            'user_ratings_total'
+          ]
+        }
+      })
+
+      const details = response.data.result
+
+      if (details.photos && details.photos.length > 0) {
+        const photoUrl = await this.getPlacePhoto(details.photos[0].photo_reference)
+        return { ...details, photoUrl } as PlaceDetails
+      }
+
+      return details as PlaceDetails
+    } catch (error) {
+      console.error('Error getting place details:', error)
+      throw AppError('Failed to get place details', 500)
+    }
+  }
+
+  async getPlacePhoto(photoReference: string, maxWidth: number = 400): Promise<string> {
+    try {
+      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${config.googleMapsApiKey}`
+    } catch (error) {
+      console.error('Error getting place photo:', error)
+      throw AppError('Failed to get place photo', 500)
+    }
+  }
+}
