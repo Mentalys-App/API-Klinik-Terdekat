@@ -1,7 +1,7 @@
 import { Client, Language } from '@googlemaps/google-maps-services-js'
 import { SearchParams, PlaceDetails } from '../types'
 import { config } from '../config'
-import { AppError } from '@/utils/AppError'
+import { AppError } from '../utils/AppError'
 
 export class GoogleMapsService {
   private client: Client

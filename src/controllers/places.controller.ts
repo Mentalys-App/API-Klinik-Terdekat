@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { GoogleMapsService } from '../services/googleMaps.service'
 import { SearchParams } from '../types/index'
 import { config } from '../config'
-import { AppError } from '@/utils/AppError'
+import { AppError } from '../utils/AppError'
 
 export class PlacesController {
   private googleMapsService: GoogleMapsService
