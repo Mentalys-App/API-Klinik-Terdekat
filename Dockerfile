@@ -1,5 +1,5 @@
 # Menggunakan image Node.js sebagai base image
-FROM node:16-alpine as build
+FROM node:16-alpine
 
 # Set working directory
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Menginstall dependensi untuk production
-RUN npm install --only=production
+RUN npm install
 
 # Menyalin seluruh kode sumber ke dalam container
 COPY . .
