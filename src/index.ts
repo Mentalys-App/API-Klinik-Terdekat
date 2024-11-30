@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { Request, Response } from 'express'
 import cors from 'cors'
 import placesRoutes from './routes/places.routes'
 import { config } from './config'
@@ -18,6 +18,9 @@ app.use(
 app.use(express.json())
 
 // Routes
+app.get('/healthcheck', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok' })
+})
 app.use('/api/places', placesRoutes)
 
 // Error handling middleware
