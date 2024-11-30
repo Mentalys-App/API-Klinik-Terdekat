@@ -1,23 +1,26 @@
-# Menggunakan image Node.js sebagai base image
-FROM node:16-alpine
+# Use the official lightweight Node.js 12 image.
+# https://hub.docker.com/_/node
+FROM node:20-alpine
 
-# Set working directory
+# Create and change to the app directory.
 WORKDIR /usr/src/app
 
-# Menyalin package.json dan package-lock.json
-COPY package*.json ./
+# Copy application dependency manifests to the container image.
+# A wildcard is used to ensure both package.json AND package-lock.json are copied.
+# Copying this separately prevents re-running npm install on every code change.
+COPY package.json yarn.lock ./
 
-# Menginstall dependensi untuk production
-RUN npm install
+# Install production dependencies.
+RUN yarn install
 
-# Menyalin seluruh kode sumber ke dalam container
-COPY . .
+# Copy local code to the container image.
+COPY . ./
 
-# Membangun aplikasi TypeScript
-RUN npm run build
+RUN yarn build
 
-# Mengatur port yang akan digunakan
-EXPOSE 3000
+RUN rm -rf src
 
-# Menjalankan aplikasi
-CMD ["npm", "start"]
+EXPOSE 8080
+
+# Run the web service on container startup.
+CMD [ "npm", "start" ]
