@@ -2,6 +2,16 @@
 
 API ini menyediakan informasi tentang tempat-tempat KLinik Kesehatan Mental di lokasi yang ditentukan serta detail informasi untuk tempat tertentu.
 
+## Konfigurasi Lingkungan
+
+Sebelum menjalankan API, pastikan untuk mengatur variabel lingkungan berikut:
+
+| Variabel Lingkungan | Deskripsi | Contoh Nilai |
+|---------------------|-----------|--------------|
+| `GOOGLE_MAPS_API_KEY` | API Key untuk Google Maps | `apiyangtelahdisediakangoogle` |
+| `NODE_ENV` | Mode lingkungan aplikasi | `development` atau `production` |
+| `ALLOWED_ORIGINS` | Daftar domain yang diizinkan untuk akses CORS | `http://localhost:3000,https://yourdomain.com` |
+
 ## Base URL
 ```
 http://localhost:3000
@@ -17,11 +27,12 @@ GET /api/places/search
 ```
 
 #### Parameters
-| Parameter | Type   | Required | Description                     |
-|-----------|--------|----------|---------------------------------|
-| lat       | number | Yes      | Latitude lokasi (contoh: -6.2088) |
-| lng       | number | Yes      | Longitude lokasi (contoh: 106.8456) |
-| radius    | number | Optional | Radius lokasi (contoh: 1000 == 1km) |
+| Parameter | Type   | Required | Description                     | Contoh |
+|-----------|--------|----------|---------------------------------|--------|
+| lat       | number | Yes      | Latitude lokasi | `-6.200000` |
+| lng       | number | Yes      | Longitude lokasi | `106.816666` |
+| radius    | number | Optional | Radius pencarian dalam meter | `5000` (5 km) |
+| openNow   | boolean| Optional | Hanya tampilkan tempat yang sedang buka | `true` |
 
 #### Response Success
 
@@ -35,43 +46,14 @@ GET /api/places/search
                 "location": {
                     "lat": number,
                     "lng": number
-                },
-                "viewport": {
-                    "northeast": {
-                        "lat": number,
-                        "lng": number
-                    },
-                    "southwest": {
-                        "lat": number,
-                        "lng": number
-                    }
                 }
             },
-            "icon": string,
-            "icon_background_color": string,
-            "icon_mask_base_uri": string,
             "name": string,
             "opening_hours": {
                 "open_now": boolean
             },
-            "photos": [
-                {
-                    "height": number,
-                    "html_attributions": array,
-                    "photo_reference": string,
-                    "width": number
-                }
-            ],
-            "place_id": string,
-            "plus_code": {
-                "compound_code": string,
-                "global_code": string
-            },
             "rating": number,
-            "reference": string,
-            "scope": string,
             "types": array,
-            "user_ratings_total": number,
             "vicinity": string,
             "photoUrl": string
         }
@@ -99,47 +81,9 @@ GET /api/details/:reference
     "data": {
         "formatted_address": string,
         "formatted_phone_number": string,
-        "geometry": {
-            "location": {
-                "lat": number,
-                "lng": number
-            },
-            "viewport": {
-                "northeast": {
-                    "lat": number,
-                    "lng": number
-                },
-                "southwest": {
-                    "lat": number,
-                    "lng": number
-                }
-            }
-        },
         "name": string,
-        "photos": [
-            {
-                "height": number,
-                "html_attributions": array,
-                "photo_reference": string,
-                "width": number
-            }
-        ],
         "rating": number,
-        "reviews": [
-            {
-                "author_name": string,
-                "author_url": string,
-                "language": string,
-                "original_language": string,
-                "profile_photo_url": string,
-                "rating": number,
-                "relative_time_description": string,
-                "text": string,
-                "time": number,
-                "translated": boolean
-            }
-        ],
-        "user_ratings_total": number,
+        "reviews": array,
         "website": string,
         "photoUrl": string
     }
@@ -148,9 +92,9 @@ GET /api/details/:reference
 
 ## Contoh Penggunaan
 
-### Search Places
+### Search Places dengan Parameter Tambahan
 ```bash
-curl "http://localhost:3000/api/places/search?lat=-6.2088&lng=106.8456"
+curl "http://localhost:3000/api/places/search?lat=-6.200000&lng=106.816666&radius=5000&openNow=true"
 ```
 
 ### Get Place Details
@@ -158,8 +102,15 @@ curl "http://localhost:3000/api/places/search?lat=-6.2088&lng=106.8456"
 curl "http://localhost:3000/api/details/ChIJXSPVCc4e4iMR7VLDnvu5U1M"
 ```
 
-## Catatan
+## Catatan Penting
 - Semua response akan memiliki format JSON
 - Status code 200 akan dikembalikan untuk response sukses
 - Pastikan untuk menyertakan parameter yang diperlukan untuk setiap endpoint
+- Konfigurasikan variabel lingkungan sebelum menjalankan aplikasi
 - Photo URL yang dikembalikan sudah termasuk API key yang diperlukan
+
+## Troubleshooting
+- Pastikan `GOOGLE_MAPS_API_KEY` valid dan memiliki izin yang diperlukan
+- Untuk mode development, gunakan `NODE_ENV=development`
+- Untuk mode production, gunakan `NODE_ENV=production`
+- Periksa `ALLOWED_ORIGINS` untuk memastikan domain yang diizinkan sudah benar
