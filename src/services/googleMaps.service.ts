@@ -35,13 +35,12 @@ export class GoogleMapsService {
             const photoUrl = await this.getPlacePhoto(place.photos[0].photo_reference)
             return { ...place, photoUrl }
           }
-          return place
+          return null
         })
       )
 
-      return placesWithPhotos as PlaceDetails[]
-    } catch (error) {
-      console.error('Error searching nearby places:', error)
+      return placesWithPhotos.filter((place) => place !== null) as PlaceDetails[]
+    } catch {
       throw AppError('Failed to search nearby places', 500)
     }
   }
@@ -53,7 +52,6 @@ export class GoogleMapsService {
           key: config.googleMapsApiKey as string,
           place_id: placeId,
           language: 'id' as Language,
-          // sesuaikan dengan kebutuhan frontend
           fields: [
             'name',
             'formatted_address',
@@ -77,17 +75,15 @@ export class GoogleMapsService {
       }
 
       return details as PlaceDetails
-    } catch (error) {
-      console.error('Error getting place details:', error)
+    } catch {
       throw AppError('Failed to get place details', 500)
     }
   }
 
   async getPlacePhoto(photoReference: string, maxWidth: number = 400): Promise<string> {
     try {
-      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${config.googleMapsApiKey}`
-    } catch (error) {
-      console.error('Error getting place photo:', error)
+      return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photoreference=${photoReference}&key=${config.googleMapsApiKey}`
+    } catch {
       throw AppError('Failed to get place photo', 500)
     }
   }

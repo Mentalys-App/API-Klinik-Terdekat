@@ -29,8 +29,10 @@ export class PlacesController {
       }
 
       const places = await this.googleMapsService.searchNearbyPlaces(searchParams)
+      const lengthPlaces = places.length
       res.json({
         status: 'success',
+        total: lengthPlaces,
         data: places
       })
     } catch (error) {
